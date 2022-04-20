@@ -30,7 +30,7 @@ def training():
     federated_learning_config = FederatedLearningConfig(request.json['learning_rate'],
                                                         request.json['epochs'],
                                                         request.json['batch_size'])
-    model_params = request_params_to_model_params(training_type, request.json)
+    model_params = request_params_to_model_params(training_type, request.json, client.byzantine)
     client.do_training(training_type, model_params, federated_learning_config)
     return Response(status=200)
 
