@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 from fastai.torch_core import to_np
+import sys
 
 from .training_type import TrainingType
 
@@ -23,12 +24,13 @@ def model_params_to_request_params(training_type, model_params):
 
 def request_params_to_model_params(training_type, request_data, byzantine):
     model_params = None
+    weights = None
+    bias = None
     if training_type == TrainingType.MNIST:
-        if byzantine == 1:
-            print("Entro")
+        if byzantine == '1':
             weights = torch.randn((28 * 28, 1), dtype=torch.float, requires_grad=True)
             bias = torch.randn(1, dtype=torch.float, requires_grad=True)
-        else:
+        elif byzantine == '0':
             weights = torch.tensor(np.array(request_data['weights']), dtype=torch.float, requires_grad=True)
             bias = torch.tensor(np.array(request_data['bias']), dtype=torch.float, requires_grad=True)
         model_params = weights, bias
