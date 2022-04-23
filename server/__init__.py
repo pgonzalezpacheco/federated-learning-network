@@ -39,6 +39,14 @@ def create_app(test_config=None):
         asyncio.run(server.start_training(training_type))
         return Response(status=200)
 
+    @app.route("/grafIRR")
+    def grafIRR():
+        return render_template("getData_Irradiation.php")
+
+    @app.route("/grafTMP")
+    def grafTMP():
+        return render_template("getData_Temperature.php")
+
     @app.route('/client', methods=['POST'])
     def register_client():
         print('Request POST /client for client_url [', request.form['client_url'], ']')
