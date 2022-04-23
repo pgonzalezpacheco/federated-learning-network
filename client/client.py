@@ -19,6 +19,7 @@ class Client:
         self.status = ClientStatus.IDLE
         self.training_type = None
         self.SERVER_URL = environ.get('SERVER_URL')
+        self.byzantine = environ.get('BYZANTINE')
         if self.SERVER_URL is None:
             print('Warning: SERVER_URL environment variable is not defined, using DEFAULT_SERVER_URL:', DEFAULT_SERVER_URL)
             self.SERVER_URL = DEFAULT_SERVER_URL
