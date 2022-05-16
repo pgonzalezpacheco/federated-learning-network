@@ -1,6 +1,7 @@
 import asyncio
 import os
 
+
 from flask import (
     Flask, Response, request, render_template
 )
@@ -50,6 +51,15 @@ def create_app(test_config=None):
         print('Request DELETE /client for client_url [', request.form['client_url'], ']')
         server.unregister_client(request.form['client_url'])
         return Response(status=200)
+
+    @app.route('/nostre', methods=["POST"])
+    def post_accuracy():
+        accuracy = request.json['accuracy_value']
+        client_url = request.json['client_url']
+        print('Request Post /nostre penjar accuracy de client ',client_url)
+        server.actualize_graphics(client_url,accuracy)
+        return Response(status=200)
+        
 
     @app.route('/model_params', methods=['PUT'])
     def update_weights():

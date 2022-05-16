@@ -54,14 +54,23 @@
         <div>
             <canvas id="myChart" width="200" height="200"></canvas>
             <script>
+                //aqui hauria de anar la recopilació de dades
+                // cambiar els grafics per la seguent idea: punts i que es vagin ficant les acuracies(mitjana) i aixi nem mirant el historic
+                //la idea seria obrir aqui el fitxer, i anem llegint eljson
+                var client=[];
+                for( i=0;i<3;++i){
+                    //
+                    client.push();
+                }
+                
                 const ctx = document.getElementById('myChart').getContext('2d');
                 const myChart = new Chart(ctx, {
-                    type: 'bar',
+                    type: 'line',
                     data: {
-                        labels: ["Training","Client2","Client3"],
+                        labels: ["Client1","Client2","Client3"],
                         datasets: [{
                             label: '% of Accuracy',
-                            data: [12, 19, 3],
+                            data: [client[0] , client[1], client[2]],
                             backgroundColor: [
                                 'rgba(255, 99, 132, 0.2)',
                                 'rgba(54, 162, 235, 0.2)',

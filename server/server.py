@@ -2,6 +2,7 @@ import asyncio
 import sys
 import aiohttp
 import torch
+import json
 
 import numpy as np
 
@@ -137,4 +138,12 @@ class Server:
                 return False
 
         return True
+
+    def actualize_graphics(self, client_url, accuracy):
+        obj = json.dump(accuracy,indent=4)
+        with open("%s.json" %(client_url),"w+") as outfile:
+            outfile.write(obj)
+        return True
+
+
 
