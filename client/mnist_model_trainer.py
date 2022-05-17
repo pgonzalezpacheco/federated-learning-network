@@ -4,13 +4,14 @@ from .training_utils import mnist_loss, linear_model
 
 
 class MnistModelTrainer:
-    def __init__(self, model_params, client_config):
+    def __init__(self, model_params, client_config, byzantine):
         print('Initializing MnistModelTrainer...')
         self.ACCURACY_THRESHOLD = 0.5
         self.training_dataloader = None
         self.validation_dataloader = None
         self.client_config = client_config
         self.model_params = model_params
+        self.byzantine = byzantine
 
     def train_model(self):
         training_dataset, validation_dataset = self.__load_datasets()
@@ -73,6 +74,9 @@ class MnistModelTrainer:
 
         train_images = torch.cat([stacked_threes, stacked_sevens]).view(-1, 28 * 28)
         train_labels = tensor([1] * len(threes) + [0] * len(sevens)).unsqueeze(1)
+        if self.byzantine == '1':
+            print('Entro byzantine')
+            train_labels = tensor([0] * len(threes) + [0] * len(sevens)).unsqueeze(1)
         training_dataset = list(zip(train_images, train_labels))
         print('Training images shape:', train_images.shape, ', training labels shape:', train_labels.shape)
 
