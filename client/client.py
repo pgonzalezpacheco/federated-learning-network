@@ -49,8 +49,7 @@ class Client:
             try:
                 model_params_updated = client_model_trainer.train_model()
                 model_params_updated = model_params_to_request_params(training_type, model_params_updated)
-                self.update_model_params_on_server(model_params_updated)
-                '''
+                #self.update_model_params_on_server(model_params_updated)
                 if self.byzantine == '0':
                     self.update_model_params_on_server(model_params_updated)
                 elif self.byzantine == '1':
@@ -61,7 +60,6 @@ class Client:
                         self.update_model_params_on_server(model_params_updated)
                     elif self.training_type == TrainingType.CHEST_X_RAY_PNEUMONIA:
                         self.update_model_params_on_server(model_params_updated)
-                '''
             except Exception as e:
                 raise e
             finally:

@@ -20,6 +20,8 @@ class Server:
         self.init_params()
         self.training_clients = {}
         self.status = ServerStatus.IDLE
+        self.cos = torch.nn.CosineSimilarity(dim=0)
+        self.alpha = 0.5
 
     def init_params(self):
         if self.mnist_model_params is None:
@@ -85,11 +87,20 @@ class Server:
                 received_biases = []
                 for training_client in self.training_clients.values():
                     if training_client.status == ClientTrainingStatus.TRAINING_FINISHED:
-                        received_weights.append(training_client.model_params[0])
-                        received_biases.append(training_client.model_params[1])
+                        cosine_dist = self.cos(training_client.model_params[0], self.mnist_model_params[0])
+                        cosine_dist = cosine_dist[0].item()
+                        if 1-cosine_dist > self.alpha and training_client.rounds < 5:
+                            training_client.rounds = training_client.rounds + 1
+                        elif 1-cosine_dist < self.alpha and training_client.rounds != 0:
+                            training_client.rounds = training_client.rounds - 1
+                        elif 1 - cosine_dist < self.alpha and training_client.rounds == 0:
+                            print(training_client.client_url)
+                            received_weights.append(training_client.model_params[0])
+                            received_biases.append(training_client.model_params[1])
                         training_client.status = ClientTrainingStatus.IDLE
                 new_weights = torch.stack(received_weights).mean(0)
                 new_bias = torch.stack(received_biases).mean(0)
+
                 self.mnist_model_params = new_weights, new_bias
                 print('Model weights for', TrainingType.MNIST, 'updated in central model')
             elif training_type == TrainingType.CHEST_X_RAY_PNEUMONIA:
