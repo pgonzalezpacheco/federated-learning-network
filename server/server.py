@@ -21,6 +21,7 @@ class Server:
         self.chest_x_ray_model_params = None
         self.init_params()
         self.training_clients = {}
+        self.mean_accuracy=0
         self.status = ServerStatus.IDLE
         self.cos = torch.nn.CosineSimilarity(dim=0)
         self.round = 0
@@ -121,8 +122,8 @@ class Server:
                 self.mnist_model_params = new_weights, new_bias
                 print('Model weights for', TrainingType.MNIST, 'updated in central model')
 
-                mean_accuracy = sum(accuracy_list) / len(accuracy_list)
-                self.send_accuracy(mean_accuracy)
+                self.mean_accuracy = sum(accuracy_list) / len(accuracy_list)
+                #self.send_accuracy(mean_accuracy)
 
             elif training_type == TrainingType.CHEST_X_RAY_PNEUMONIA:
                 received_weights = []

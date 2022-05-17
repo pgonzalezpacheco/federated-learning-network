@@ -74,7 +74,7 @@
                     data: [],
                     borderWidth: 1,
                     borderColor:'#00c0ef',
-                    label: 'accuracy',
+                    label: 'Accuracy',
                     }]
                 },
                 options: {
@@ -102,14 +102,14 @@
                 // logic to get new data
                 var getData = function() {
                 $.ajax({
-                    url: 'https://localhost:5000/nostre',
+                    url: 'http://127.0.0.1:5000/nostre',
                     success: function(data) {
                     // process your data to pull out what you plan to use to update the chart
                     // e.g. new label and a new data point
-                    
+                    console.log(data)
                     // add new label and data point to chart's underlying data structures
-                    myChart.data.labels.push("Post " + postId++);
-                    myChart.data.datasets[0].data.push(getRandomIntInclusive(1, 25));
+                    myChart.data.labels.push("Round is: " + data[0]);
+                    myChart.data.datasets[0].data.push(data[1]);
                     
                     // re-render the chart
                     myChart.update();
