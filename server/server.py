@@ -2,8 +2,6 @@ import asyncio
 import sys
 import aiohttp
 import torch
-import operator
-from functools import reduce
 
 import numpy as np
 
@@ -22,11 +20,10 @@ class Server:
         self.init_params()
         self.training_clients = {}
         self.status = ServerStatus.IDLE
-        self.cos = torch.nn.CosineSimilarity(dim=0)
 
     def init_params(self):
         if self.mnist_model_params is None:
-            weights = torch.randn(28 * 28, dtype=torch.float, requires_grad=True)
+            weights = torch.randn((28 * 28, 1), dtype=torch.float, requires_grad=True)
             bias = torch.randn(1, dtype=torch.float, requires_grad=True)
             self.mnist_model_params = weights, bias
 
