@@ -7,6 +7,7 @@ class TrainingClient:
         self.status = ClientTrainingStatus.IDLE
         self.model_params = None
         self.rounds = 0
+        self.accuracy = None
 
     def __str__(self):
         return "Training client:\n--Client URL: {}\n--Status: {}\n".format(

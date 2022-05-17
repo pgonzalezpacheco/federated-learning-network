@@ -47,19 +47,19 @@ class Client:
             self.status = ClientStatus.TRAINING
             print('Training started...')
             try:
-                model_params_updated = client_model_trainer.train_model()
+                model_params_updated, accuracy = client_model_trainer.train_model()
                 model_params_updated = model_params_to_request_params(training_type, model_params_updated)
                 #self.update_model_params_on_server(model_params_updated)
                 if self.byzantine == '0':
-                    self.update_model_params_on_server(model_params_updated)
+                    self.update_model_params_on_server(model_params_updated, accuracy)
                 elif self.byzantine == '1':
                     if self.training_type == TrainingType.MNIST:
                         weights = torch.randn((28 * 28, 1), dtype=torch.float, requires_grad=True)
                         bias = torch.randn(1, dtype=torch.float, requires_grad=True)
                         model_params_updated = {'weights': weights.tolist(), 'bias': bias.tolist()}
-                        self.update_model_params_on_server(model_params_updated)
+                        self.update_model_params_on_server(model_params_updated, accuracy)
                     elif self.training_type == TrainingType.CHEST_X_RAY_PNEUMONIA:
-                        self.update_model_params_on_server(model_params_updated)
+                        self.update_model_params_on_server(model_params_updated, accuracy)
             except Exception as e:
                 raise e
             finally:
@@ -69,11 +69,12 @@ class Client:
             print('Training requested but client status is', self.status)
         sys.stdout.flush()
 
-    def update_model_params_on_server(self, model_params):
+    def update_model_params_on_server(self, model_params, accuracy):
         request_url = self.SERVER_URL + '/model_params'
         request_body = model_params
         request_body['client_url'] = self.client_url
         request_body['training_type'] = self.training_type
+        request_body['accuracy'] = accuracy
         print('Sending calculated model weights to central node')
         response = requests.put(request_url, json=request_body)
         print('Response received from updating central model params:', response)

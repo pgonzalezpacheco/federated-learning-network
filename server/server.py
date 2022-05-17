@@ -2,6 +2,8 @@ import asyncio
 import sys
 import aiohttp
 import torch
+import requests
+from os import environ
 
 import numpy as np
 
@@ -21,7 +23,9 @@ class Server:
         self.training_clients = {}
         self.status = ServerStatus.IDLE
         self.cos = torch.nn.CosineSimilarity(dim=0)
+        self.round = 0
         self.alpha = 0.5
+        self.server_url = environ.get('SERVER_URL')
 
     def init_params(self):
         if self.mnist_model_params is None:
@@ -72,11 +76,22 @@ class Server:
                 else:
                     print('Client', training_client.client_url, 'started training')
 
-    def update_client_model_params(self, training_type, training_client, client_model_params):
+    def update_client_model_params(self, training_type, training_client, client_model_params, accuracy):
         print('New model params received from client', training_client.client_url)
         training_client.model_params = client_model_params
         training_client.status = ClientTrainingStatus.TRAINING_FINISHED
+        training_client.accuracy = accuracy
         self.update_server_model_params(training_type)
+
+    def send_accuracy(self, accuracy):
+        request_url = self.server_url + '/nostre'
+        request_body = {'round': self.round, 'accuracy': accuracy}
+        response = requests.post(request_url, json=request_body)
+        print('Response received from updating central model params:', response)
+        if response.status_code != 200:
+            print('Error uploading accuracy. Error:', response.reason)
+        else:
+            print('Accuracy updated successfully')
 
     def update_server_model_params(self, training_type):
         if self.can_update_central_model_params():
@@ -85,6 +100,7 @@ class Server:
             if training_type == TrainingType.MNIST:
                 received_weights = []
                 received_biases = []
+                accuracy_list = []
                 for training_client in self.training_clients.values():
                     if training_client.status == ClientTrainingStatus.TRAINING_FINISHED:
                         cosine_dist = self.cos(training_client.model_params[0], self.mnist_model_params[0])
@@ -94,15 +110,20 @@ class Server:
                         elif 1-cosine_dist < self.alpha and training_client.rounds != 0:
                             training_client.rounds = training_client.rounds - 1
                         elif 1 - cosine_dist < self.alpha and training_client.rounds == 0:
-                            print(training_client.client_url)
                             received_weights.append(training_client.model_params[0])
                             received_biases.append(training_client.model_params[1])
+                            accuracy_list.append(training_client.accuracy)
                         training_client.status = ClientTrainingStatus.IDLE
+                self.round = self.round + 1
                 new_weights = torch.stack(received_weights).mean(0)
                 new_bias = torch.stack(received_biases).mean(0)
 
                 self.mnist_model_params = new_weights, new_bias
                 print('Model weights for', TrainingType.MNIST, 'updated in central model')
+
+                mean_accuracy = sum(accuracy_list) / len(accuracy_list)
+                self.send_accuracy(mean_accuracy)
+
             elif training_type == TrainingType.CHEST_X_RAY_PNEUMONIA:
                 received_weights = []
                 for training_client in self.training_clients.values():

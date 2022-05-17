@@ -17,10 +17,12 @@ class MnistModelTrainer:
         training_dataset, validation_dataset = self.__load_datasets()
         self.training_dataloader = DataLoader(training_dataset, batch_size=self.client_config.batch_size)
         self.validation_dataloader = DataLoader(validation_dataset, batch_size=self.client_config.batch_size)
+        accuracy = None
         for epoch in range(self.client_config.epochs):
             self.__train_epoch() #lo k torna el validate es la acuracy
-            print('Accuracy of model trained at epoch', epoch + 1, ':', self.__validate_epoch(), end='\n', flush=True)
-        return self.model_params
+            accuracy = self.__validate_epoch()
+            print('Accuracy of model trained at epoch', epoch + 1, ':', accuracy, end='\n', flush=True)
+        return self.model_params, accuracy
 
     def __train_epoch(self):
         for train_data, train_labels in self.training_dataloader:
