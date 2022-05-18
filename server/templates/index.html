@@ -103,10 +103,12 @@
                 var getData = function() {
                 $.ajax({
                     url: 'http://127.0.0.1:5000/nostre',
+                    dataType:"jsonp",
                     success: function(data) {
                     // process your data to pull out what you plan to use to update the chart
                     // e.g. new label and a new data point
                     console.log(data)
+                    console.log(data[0])
                     // add new label and data point to chart's underlying data structures
                     myChart.data.labels.push("Round is: " + data[0]);
                     myChart.data.datasets[0].data.push(data[1]);
