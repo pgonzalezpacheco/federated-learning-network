@@ -122,8 +122,8 @@ class Server:
                 self.mnist_model_params = new_weights, new_bias
                 print('Model weights for', TrainingType.MNIST, 'updated in central model')
 
-                self.mean_accuracy = sum(accuracy_list) / len(accuracy_list)
-                #self.send_accuracy(mean_accuracy)
+                mean_accuracy = sum(accuracy_list) / len(accuracy_list)
+                self.send_accuracy(mean_accuracy)
 
             elif training_type == TrainingType.CHEST_X_RAY_PNEUMONIA:
                 received_weights = []

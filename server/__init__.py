@@ -15,6 +15,7 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     server = Server()
 
+
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'fl-network.sqlite'),
@@ -52,11 +53,23 @@ def create_app(test_config=None):
         server.unregister_client(request.form['client_url'])
         return Response(status=200)
 
-    @app.route('/nostre', methods=["GET"])
+
+    @app.route('/nostre', methods=["POST"])
     def post_accuracy():
-        accuracy = server.mean_accuracy
+        accuracy = request.json['accuracy']
+        round = request.json['round']
+        server.round = round
+        server.mean_accuracy=accuracy
+        print("  POST  Accuracy: " + str(accuracy) + " Round: " + str(round))
+        #server.actualize_graphics(client_url, accuracy)
+        return Response(status=200)
+        
+
+    @app.route('/nostre', methods=["GET"])
+    def get_accuracy():
+        accuracy= server.mean_accuracy
         round = server.round
-        print("Accuracy: " + str(accuracy) + " Round: " + str(round))
+        print("GET  Accuracy: " + str(accuracy) + " Round: " + str(round))
         #server.actualize_graphics(client_url, accuracy)
         #return Response(status=200)
         return jsonify(round,accuracy)
